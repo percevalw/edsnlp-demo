@@ -5,12 +5,12 @@ from spacy import displacy
 import edsnlp
 from edsnlp.utils.filter import filter_spans
 
-DEFAULT_TEXT = "On prescrit du paracétamol à 500mg pendant 3 jours."
+DEFAULT_TEXT = "Brice Denice a déménagé à Hossegor en 2006."
 
 
 @st.cache_resource()
 def load_model():
-    nlp = edsnlp.load("AP-HP/dummy-ner")
+    nlp = edsnlp.load("AP-HP/eds-pseudo-public")
     return nlp
 
 
