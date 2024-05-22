@@ -1,2 +1,3 @@
+torch -i https://download.pytorch.org/whl/cpu
 edsnlp[ml]>=0.12.0
 streamlit
