@@ -1,3 +1,4 @@
-https://download.pytorch.org/whl/cpu-cxx11-abi/torch-2.3.0%2Bcpu.cxx11.abi-cp312-cp312-linux_x86_64.whl#sha256=d02b2230f2a682ecdb7aafe4b2702c968943744a582ef6913b7364cbd174cf38
-edsnlp[ml]>=0.12.0
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+git+https://github.com/aphp/edsnlp.git@fix-catalogue-entrypoints[ml]>=0.12.0
 streamlit
