@@ -93,7 +93,7 @@ text = st.text_area(
     max_chars=512,
 )
 
-data, html = apply_model(nlp, text)
+data, html = apply_model(text)
 
 st.header("Visualisation")
 
