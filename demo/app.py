@@ -89,7 +89,7 @@ st.header("Enter a text to analyse:")
 text = st.text_area(
     "Modify the following text and see the model's predictions :",
     DEFAULT_TEXT,
-    height=130,
+    height=125,
     max_chars=512,
 )
 
