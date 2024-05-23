@@ -3,15 +3,63 @@ import streamlit as st
 from spacy import displacy
 
 import edsnlp
-from edsnlp.utils.filter import filter_spans
 
-DEFAULT_TEXT = "Brice Denice a déménagé à Hossegor en 2006."
+DEFAULT_TEXT = """
+En 2015, M. Charles-François-Bienvenu
+Myriel était évêque de Digne. C’était un vieillard
+d’environ soixante-quinze ans ; il occupait le
+siège de Digne depuis 2006.
+"""
 
 
 @st.cache_resource()
 def load_model():
+    model_load_state = st.info("Loading model...")
     nlp = edsnlp.load("AP-HP/eds-pseudo-public")
+    model_load_state.empty()
     return nlp
+
+
+@st.cache_data(64)
+def apply_model(text):
+    doc = nlp(text)
+    html = displacy.render(
+        doc,
+        style="ent",
+        options={
+            "colors": {
+                "ADRESSE": "#1f77b4",
+                "DATE": "#aec7e8",
+                "DATE_NAISSANCE": "#ff7f0e",
+                "HOPITAL": "#ffbb78",
+                "IPP": "#2ca02c",
+                "MAIL": "#98df8a",
+                "NDA": "#d62728",
+                "NOM": "#ff9896",
+                "PRENOM": "#9467bd",
+                "SECU": "#c5b0d5",
+                "TEL": "#8c564b",
+                "VILLE": "#c49c94",
+            }
+        },
+    )
+    html = html.replace("line-height: 2.5;", "line-height: 2.25;")
+    html = (
+        '<div style="padding: 10px; border: solid 2px; border-radius: 10px; '
+        f'border-color: #afc6e0;">{html}</div>'
+    )
+    data = []
+    for ent in doc.ents:
+        d = dict(
+            start=ent.start_char,
+            end=ent.end_char,
+            text=ent.text,
+            label=ent.label_,
+            normalized_value=str(ent._.value or ""),
+        )
+
+        data.append(d)
+    return data, html
 
 
 st.set_page_config(
@@ -30,93 +78,29 @@ st.sidebar.header("About")
 st.sidebar.markdown(
     "EDS-Pseudo is a contributive effort maintained by AP-HP's Data Science team. "
     "Have a look at the "
-    "[documentation](https://aphp.github.io/eds-pseudo/) for "
-    "more information on the available components."
+    "[project](https://github.com/aphp/eds-pseudo/) for "
+    "more information.\n"
+    "In particular, this model was trained on fictitious data "
+    "and should be tested on your own data before considering using it."
 )
-
-model_load_state = st.info("Loading model...")
 
 nlp = load_model()
 
-model_load_state.empty()
-
 st.header("Enter a text to analyse:")
 text = st.text_area(
-    "Modify the following text and see the model's predi :",
+    "Modify the following text and see the model's predictions :",
     DEFAULT_TEXT,
-    height=50,
+    height=64,
+    max_chars=512,
 )
 
-doc = nlp(text)
-doc.ents = filter_spans(
-    (*doc.ents, *doc.spans.get("dates", []), *doc.spans.get("measurements", []))
-)
+data, html = apply_model(nlp, text)
 
 st.header("Visualisation")
 
-category20 = [
-    "#1f77b4",
-    "#aec7e8",
-    "#ff7f0e",
-    "#ffbb78",
-    "#2ca02c",
-    "#98df8a",
-    "#d62728",
-    "#ff9896",
-    "#9467bd",
-    "#c5b0d5",
-    "#8c564b",
-    "#c49c94",
-    "#e377c2",
-    "#f7b6d2",
-    "#7f7f7f",
-    "#c7c7c7",
-    "#bcbd22",
-    "#dbdb8d",
-    "#17becf",
-    "#9edae5",
-]
-
-labels = [
-    "date",
-    "covid",
-    "drug",
-    "cim10",
-    "emergency_priority",
-    "sofa",
-    "charlson",
-    "size",
-    "weight",
-    "adicap",
-]
-
-colors = {label: cat for label, cat in zip(labels, category20)}
-colors["custom"] = "linear-gradient(90deg, #aa9cfc, #fc9ce7)"
-options = {
-    "colors": colors,
-}
-
-html = displacy.render(doc, style="ent")
-html = html.replace("line-height: 2.5;", "line-height: 2.25;")
-html = (
-    '<div style="padding: 10px; border: solid 2px; border-radius: 10px; '
-    f'border-color: #afc6e0;">{html}</div>'
-)
 st.write(html, unsafe_allow_html=True)
 
-data = []
-for ent in doc.ents:
-    d = dict(
-        start=ent.start_char,
-        end=ent.end_char,
-        text=ent.text,
-        label=ent.label_,
-        normalized_value=str(ent._.value or ""),
-    )
-
-    data.append(d)
-
-st.header("Entity qualification")
+st.header("Entities")
 
 if data:
     df = pd.DataFrame.from_records(data)
@@ -124,4 +108,4 @@ if data:
     st.dataframe(df)
 
 else:
-    st.markdown("You pipeline did not match any entity...")
+    st.markdown("The model did not match any entity...")
