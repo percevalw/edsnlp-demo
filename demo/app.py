@@ -42,7 +42,7 @@ model_load_state.empty()
 
 st.header("Enter a text to analyse:")
 text = st.text_area(
-    "Modify the following text and see the pipeline react :",
+    "Modify the following text and see the model's predi :",
     DEFAULT_TEXT,
     height=50,
 )
@@ -53,11 +53,6 @@ doc.ents = filter_spans(
 )
 
 st.header("Visualisation")
-
-st.markdown(
-    "The pipeline extracts simple entities using a dictionnary of RegEx (see the "
-    "[Export the pipeline section](#export-the-pipeline) for more information)."
-)
 
 category20 = [
     "#1f77b4",
