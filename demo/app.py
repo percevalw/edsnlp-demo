@@ -4,12 +4,11 @@ from spacy import displacy
 
 import edsnlp
 
-DEFAULT_TEXT = """
+DEFAULT_TEXT = """\
 En 2015, M. Charles-François-Bienvenu
 Myriel était évêque de Digne. C’était un vieillard
 d’environ soixante-quinze ans ; il occupait le
-siège de Digne depuis 2006.
-"""
+siège de Digne depuis 2006."""
 
 
 @st.cache_resource()
@@ -90,7 +89,7 @@ st.header("Enter a text to analyse:")
 text = st.text_area(
     "Modify the following text and see the model's predictions :",
     DEFAULT_TEXT,
-    height=64,
+    height=80,
     max_chars=512,
 )
 
