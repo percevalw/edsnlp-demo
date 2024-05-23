@@ -20,7 +20,7 @@ def load_model():
     return nlp
 
 
-@st.cache_data(64)
+@st.cache_data(max_entries=64)
 def apply_model(text):
     doc = nlp(text)
     html = displacy.render(
